@@ -28,6 +28,24 @@ def create_app(config_class=Config):
     # Initialize JWT
     jwt = JWTManager(app)
     
+    # Configure JWT error handlers
+    # Requirements: 15.1
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return {'error': 'Token has expired', 'message': 'Please log in again'}, 401
+    
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return {'error': 'Invalid token', 'message': 'Please provide a valid authentication token'}, 401
+    
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return {'error': 'Authorization required', 'message': 'Please provide an authentication token'}, 401
+    
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        return {'error': 'Token has been revoked', 'message': 'Please log in again'}, 401
+    
     # Initialize logging
     setup_logging(app)
     

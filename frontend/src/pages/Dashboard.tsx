@@ -16,16 +16,23 @@ const Dashboard: React.FC = () => {
 
   const loadComplaints = async () => {
     const userId = localStorage.getItem('userId');
-    if (!userId) return;
+    if (!userId) {
+      setError('User ID not found. Please log in again.');
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError('');
 
     try {
       const data = await complaintsAPI.getUserComplaints(userId);
+      console.log('Complaints loaded:', data);
       setComplaints(data);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load complaints');
+      console.error('Error loading complaints:', err);
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to load complaints';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

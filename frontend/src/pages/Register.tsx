@@ -52,9 +52,11 @@ const Register: React.FC = () => {
         password: formData.password,
       });
 
-      // Store token and user ID
+      // Store token, user ID, role, and name
       localStorage.setItem('token', response.token);
       localStorage.setItem('userId', response.user_id);
+      localStorage.setItem('userRole', response.role || 'citizen');
+      localStorage.setItem('userName', response.name || formData.name);
 
       // Navigate to dashboard
       navigate('/dashboard');
@@ -68,7 +70,10 @@ const Register: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-brand">🏛️ NagrikSathi</div>
+        <div className="auth-brand">
+          <img src="/logo192.png" alt="NagrikSathi Logo" className="auth-brand-logo" />
+          <span>NagrikSathi</span>
+        </div>
         <h1>Register</h1>
         <p className="auth-subtitle">Create your account to submit grievances</p>
 

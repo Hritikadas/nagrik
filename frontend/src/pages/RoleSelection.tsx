@@ -12,7 +12,16 @@ const RoleSelection: React.FC = () => {
   return (
     <div className="role-selection-container">
       <div className="role-selection-card">
-        <div className="role-brand">🏛️ NagrikSathi</div>
+        <div className="role-brand">
+          <img src="/logo192.png" alt="NagrikSathi Logo" className="role-brand-logo" />
+        </div>
+        {/* <div className="role-brand">
+          <img src="" alt="" className="role-brand-logo" />
+          <span>NagrikSathi</span>
+        </div> */}
+        <div className="role-brand">
+          <span className="role-brand-name">NagrikSathi</span>
+        </div>
         <h1>Welcome to NagrikSathi</h1>
         <p className="subtitle">AI-Powered Citizen Grievance Portal - Please select your role to continue</p>
         

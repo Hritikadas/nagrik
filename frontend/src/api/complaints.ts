@@ -76,8 +76,17 @@ export const complaintsAPI = {
 
   getUserComplaints: async (userId: string): Promise<Complaint[]> => {
     const response = await apiClient.get(`/complaints/user/${userId}`);
-    // Backend returns { complaints: [...] }, extract the array
-    return response.data.complaints || response.data;
+    console.log('API Response:', response.data);
+    // Backend returns { user_id, total_complaints, complaints: [...] }
+    if (response.data.complaints) {
+      return response.data.complaints;
+    }
+    // Fallback if response is already an array
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    // If neither, return empty array
+    return [];
   },
 
   submitFeedback: async (id: string, data: FeedbackData): Promise<void> => {

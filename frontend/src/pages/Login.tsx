@@ -68,7 +68,10 @@ const Login: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-brand">🏛️ NagrikSathi</div>
+        <div className="auth-brand">
+          <img src="/logo192.png" alt="NagrikSathi Logo" className="auth-brand-logo" />
+          <span>NagrikSathi</span>
+        </div>
         <div className="role-badge">
           {expectedRole === 'admin' ? '👨‍💼 Admin Login' : '👤 Citizen Login'}
         </div>

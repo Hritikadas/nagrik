@@ -337,6 +337,141 @@ Grievance Resolution Team""",
         }
 
 
+class NotificationService:
+    """Service for sending notifications via multiple channels."""
+    
+    def __init__(self, app=None):
+        """Initialize notification service with optional Flask app."""
+        self.twilio_client = None
+        self.sendgrid_client = None
+        
+        if app:
+            self.init_app(app)
+    
+    def init_app(self, app):
+        """Initialize with Flask app configuration."""
+        # Initialize Twilio client
+        twilio_sid = app.config.get('TWILIO_ACCOUNT_SID')
+        twilio_token = app.config.get('TWILIO_AUTH_TOKEN')
+        
+        if twilio_sid and twilio_token:
+            try:
+                self.twilio_client = Client(twilio_sid, twilio_token)
+                logger.info("Twilio client initialized successfully")
+            except Exception as e:
+                logger.error(f"Failed to initialize Twilio client: {e}")
+        else:
+            logger.warning("Twilio credentials not configured")
+        
+        # Initialize SendGrid client
+        sendgrid_key = app.config.get('SENDGRID_API_KEY')
+        
+        if sendgrid_key:
+            try:
+                self.sendgrid_client = SendGridAPIClient(sendgrid_key)
+                logger.info("SendGrid client initialized successfully")
+            except Exception as e:
+                logger.error(f"Failed to initialize SendGrid client: {e}")
+        else:
+            logger.warning("SendGrid API key not configured")
+    
+    def send_sms(self, phone: str, message: str) -> bool:
+        """
+        Send SMS notification.
+        
+        Args:
+            phone: Recipient phone number (E.164 format)
+            message: SMS message content
+            
+        Returns:
+            True if sent successfully, False otherwise
+        """
+        if not self.twilio_client:
+            logger.warning("Twilio client not initialized, skipping SMS")
+            return False
+        
+        try:
+            twilio_phone = current_app.config.get('TWILIO_PHONE_NUMBER')
+            
+            if not twilio_phone:
+                logger.error("Twilio phone number not configured")
+                return False
+            
+            message_obj = self.twilio_client.messages.create(
+                body=message,
+                from_=twilio_phone,
+                to=phone
+            )
+            
+            logger.info(f"SMS sent successfully to {phone}, SID: {message_obj.sid}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to send SMS to {phone}: {e}")
+            return False
+    
+    def send_email(self, email: str, subject: str, body: str, html_body: Optional[str] = None) -> bool:
+        """
+        Send email notification.
+        
+        Args:
+            email: Recipient email address
+            subject: Email subject
+            body: Plain text email body
+            html_body: Optional HTML email body
+            
+        Returns:
+            True if sent successfully, False otherwise
+        """
+        if not self.sendgrid_client:
+            logger.warning("SendGrid client not initialized, skipping email")
+            return False
+        
+        try:
+            sender_email = current_app.config.get('SENDER_EMAIL', 'noreply@grievance.gov')
+            
+            logger.info(f"Attempting to send email to {email} with subject: {subject}")
+            
+            message = Mail(
+                from_email=sender_email,
+                to_emails=email,
+                subject=subject,
+                plain_text_content=body,
+                html_content=html_body or body
+            )
+            
+            response = self.sendgrid_client.send(message)
+            
+            if response.status_code in [200, 201, 202]:
+                logger.info(f"Email sent successfully to {email}, status: {response.status_code}")
+                return True
+            else:
+                logger.error(f"Failed to send email to {email}, status: {response.status_code}, body: {response.body}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Failed to send email to {email}: {e}", exc_info=True)
+            return False
+    
+    def send_push_notification(self, user_id: str, message: str, data: Optional[Dict[str, Any]] = None) -> bool:
+        """
+        Send push notification (placeholder for mobile app integration).
+        
+        Args:
+            user_id: User ID to send notification to
+            message: Notification message
+            data: Optional additional data payload
+            
+        Returns:
+            True if sent successfully, False otherwise
+        """
+        # Placeholder for future mobile app integration (Firebase Cloud Messaging, etc.)
+        logger.info(f"Push notification placeholder called for user {user_id}: {message}")
+        
+        # In production, this would integrate with FCM, APNs, or similar service
+        # For now, we just log the notification
+        return True
+    
     def notify_complaint_submitted(self, user_phone: str, user_email: str, 
                                    complaint_id: str, priority: str, 
                                    tracking_url: str) -> Dict[str, bool]:
@@ -469,6 +604,8 @@ Grievance Resolution Team""",
         Returns:
             Dictionary with success status for each channel
         """
+        logger.info(f"Sending resolution notification for complaint {complaint_id} to {user_email}")
+        
         template = NotificationTemplates.resolution(complaint_id, resolution_time, 
                                                    feedback_url)
         
