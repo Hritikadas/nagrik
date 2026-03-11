@@ -4,6 +4,12 @@
 
 This is the backend API for the Grievance Prioritization System, built with Flask and Python. It provides intelligent complaint processing using NLP and ML to automatically categorize, prioritize, and route citizen grievances.
 
+**Local development:** the app runs on port 5000 by default so that the React front‑end (which uses
+`REACT_APP_API_URL=http://localhost:5000/api` from `.env`) can reach it without additional
+configuration.  Set the `PORT` environment variable to `7860` when deploying to Hugging Face
+Spaces or any environment that requires a specific port.
+
+
 ## Project Structure
 
 ```

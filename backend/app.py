@@ -16,8 +16,16 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     
-    # Enable CORS for frontend
-    CORS(app)
+    # Enable CORS for frontend - configured for Render frontend
+    # Allow requests from your React frontend hosted on Render
+    frontend_url = os.getenv('FRONTEND_URL', 'https://nagriksathi-frontend.onrender.com')
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": [frontend_url, "http://localhost:3000"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
     
     # Configure HTTPS enforcement and security headers
     # Requirements: 15.2
@@ -136,16 +144,32 @@ def setup_logging(app):
     )
     app.logger.setLevel(logging.INFO)
 
+# Create app instance for Gunicorn (production)
+app = create_app()
+
 if __name__ == '__main__':
-    app = create_app()
+    # Default port for local development.  React frontend assumes backend
+    # is available at http://localhost:5000/api unless REACT_APP_API_URL is
+    # overridden, so we default to 5000 here.
+    #
+    # When running on Hugging Face Spaces the platform requires 7860, so
+    # callers should set the PORT environment variable in that case (e.g.
+    # `export PORT=7860` or via the container config).  In production we
+    # expect a proper WSGI server to set the port as needed.
+    port = int(os.getenv('PORT', 5000))
     
-    # Configure SSL/TLS if certificates are available
+    # Determine if we're in development mode
+    # Check for FLASK_ENV or default to development for local runs
+    is_development = os.getenv('FLASK_ENV', 'development') == 'development'
+    
+    # Configure SSL/TLS if certificates are available (local dev only)
     # Requirements: 15.2
     from utils.https_config import configure_ssl_context
     ssl_context = configure_ssl_context(app)
     
     # Run with or without SSL based on configuration
+    # Enable debug mode for local development to disable HTTPS enforcement
     if ssl_context:
-        app.run(debug=True, host='0.0.0.0', port=5000, ssl_context=ssl_context)
+        app.run(debug=is_development, host='0.0.0.0', port=port, ssl_context=ssl_context)
     else:
-        app.run(debug=True, host='0.0.0.0', port=5000)
+        app.run(debug=is_development, host='0.0.0.0', port=port)
