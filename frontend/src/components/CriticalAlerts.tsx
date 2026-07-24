@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCriticalAlerts, Alert, AlertsResponse } from '../api/admin';
+import { getCriticalAlerts, AlertsResponse } from '../api/admin';
 import './CriticalAlerts.css';
 
 interface CriticalAlertsProps {
@@ -31,6 +31,7 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({ limit = 50 }) => {
         clearInterval(intervalId);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit, includeHigh, autoRefresh]);
 
   const fetchAlerts = async () => {

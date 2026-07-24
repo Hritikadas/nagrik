@@ -40,6 +40,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ compact = false }) =>
 
   useEffect(() => {
     fetchAnalyticsData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
   const fetchAnalyticsData = async () => {
@@ -108,18 +109,6 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ compact = false }) =>
     }));
   };
 
-  // Prepare department performance data
-  const prepareDepartmentChartData = () => {
-    if (!departmentData) return [];
-
-    return departmentData.departments.map(dept => ({
-      name: dept.department.replace(' Department', ''),
-      pending: dept.pending_complaints,
-      resolved: dept.resolved_complaints,
-      avgResolution: dept.avg_resolution_time_hours,
-      slaCompliance: dept.sla_compliance_rate
-    }));
-  };
 
   // Prepare resolution time data by category
   const prepareResolutionByCategory = () => {
@@ -145,7 +134,6 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ compact = false }) =>
 
   const trendsChartData = prepareTrendsChartData();
   const categoryPieData = prepareCategoryPieData();
-  const departmentChartData = prepareDepartmentChartData();
   const resolutionByCategoryData = prepareResolutionByCategory();
   const resolutionByPriorityData = prepareResolutionByPriority();
 

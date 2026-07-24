@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { complaintsAPI, COMPLAINT_CATEGORIES } from '../api/complaints';
 import Navigation from '../components/Navigation';
@@ -24,6 +24,7 @@ const SubmitComplaint: React.FC = () => {
     latitude: 28.6139, // Default to New Delhi
     longitude: 77.2090,
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [files, setFiles] = useState<FileList | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');

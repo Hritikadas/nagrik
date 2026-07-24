@@ -50,6 +50,7 @@ const ComplaintHeatmap: React.FC<ComplaintHeatmapProps> = ({ height = '500px' })
 
   useEffect(() => {
     fetchHeatmapData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const fetchHeatmapData = async () => {

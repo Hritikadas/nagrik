@@ -16,6 +16,7 @@ const ComplaintDetails: React.FC = () => {
 
   useEffect(() => {
     loadComplaintData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadComplaintData = async () => {
